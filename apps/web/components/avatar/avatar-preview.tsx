@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import styles from "./avatar-preview.module.css";
+import { LAYER_ORDER } from "@/lib/avatar";
 
 // Shared interfaces from existing code
 export type LayerRecord = Record<string, string>;
@@ -13,12 +14,15 @@ interface AvatarPreviewProps {
   loading?: boolean;
 }
 
+const LAYER_TRANSFORM_MAP: Partial<Record<(typeof LAYER_ORDER)[number], string>> = {
+  hair: "translateY(-12%)"
+};
+
 export function AvatarPreview({ layers, width = 300, height = 400, loading = false }: AvatarPreviewProps) {
   // Sort layers for proper rendering order (body -> clothes -> accessories)
   // This order logic should match the original implementation
   const sortedLayers = useMemo(() => {
-    const layerOrder = ["shadow", "body", "bottom", "top", "hair", "accessory", "effect"];
-    return layerOrder
+    return LAYER_ORDER
       .map((key) => ({ key, url: layers[key] }))
       .filter((layer) => !!layer.url);
   }, [layers]);
@@ -39,7 +43,10 @@ export function AvatarPreview({ layers, width = 300, height = 400, loading = fal
           src={layer.url}
           alt={layer.key}
           className={styles.layerImage}
-          style={{ zIndex: layer.key === "shadow" ? 0 : 10 }}
+          style={{
+            zIndex: layer.key === "shadow" ? 0 : 10,
+            transform: LAYER_TRANSFORM_MAP[layer.key]
+          }}
         />
       ))}
     </div>

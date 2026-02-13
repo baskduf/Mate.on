@@ -8,11 +8,23 @@ export const AVATAR_ANCHOR = {
   y: 480
 } as const;
 
-export const EQUIP_SLOTS = ["hair", "top", "bottom", "accessory", "effect"] as const;
+export const EQUIP_SLOTS = ["hair", "eyebrow", "eyes", "nose", "mouth", "top", "bottom", "accessory", "effect"] as const;
 
 export type EquipSlot = (typeof EQUIP_SLOTS)[number];
 
-export const LAYER_ORDER = ["shadow", "body", "bottom", "top", "hair", "accessory", "effect"] as const;
+export const LAYER_ORDER = [
+  "shadow",
+  "body",
+  "eyebrow",
+  "eyes",
+  "nose",
+  "mouth",
+  "bottom",
+  "top",
+  "hair",
+  "accessory",
+  "effect"
+] as const;
 
 export type LayerKey = (typeof LAYER_ORDER)[number];
 

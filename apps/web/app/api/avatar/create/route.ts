@@ -5,7 +5,7 @@ import { toDbErrorResponse } from "../../../../lib/db-error";
 import { getPrismaClient } from "../../../../lib/db";
 import { ensureDbUser } from "../../../../lib/user";
 
-const STARTER_SLOT_ORDER = ["hair", "top", "bottom", "accessory", "effect"] as const;
+const STARTER_SLOT_ORDER = ["hair", "eyebrow", "eyes", "nose", "mouth", "top", "bottom", "accessory", "effect"] as const;
 
 interface StarterItem {
   id: string;

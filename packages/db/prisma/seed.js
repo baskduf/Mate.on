@@ -6,6 +6,10 @@ const prisma = new PrismaClient();
 
 const STARTER_ITEMS = [
   { slot: "hair", name: "Starter Hair", rarity: "common", price: 120, assetWebpUrl: "/avatar/hair.svg" },
+  { slot: "eyebrow", name: "Starter Eyebrow", rarity: "common", price: 60, assetWebpUrl: "/avatar/eyebrow.svg" },
+  { slot: "eyes", name: "Starter Eyes", rarity: "common", price: 80, assetWebpUrl: "/avatar/eyes.svg" },
+  { slot: "nose", name: "Starter Nose", rarity: "common", price: 50, assetWebpUrl: "/avatar/nose.svg" },
+  { slot: "mouth", name: "Starter Mouth", rarity: "common", price: 70, assetWebpUrl: "/avatar/mouth.svg" },
   { slot: "top", name: "Starter Top", rarity: "common", price: 150, assetWebpUrl: "/avatar/top.svg" },
   { slot: "bottom", name: "Starter Bottom", rarity: "common", price: 140, assetWebpUrl: "/avatar/bottom.svg" },
   { slot: "accessory", name: "Starter Accessory", rarity: "common", price: 110, assetWebpUrl: "/avatar/accessory.svg" },

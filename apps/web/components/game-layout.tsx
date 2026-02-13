@@ -66,7 +66,7 @@ function TopBar() {
       {/* Profile / Level (Left) */}
       <div className="pointer-events-auto flex items-center gap-3">
         <div className="w-12 h-12 rounded-full border-2 border-ghibli-forest-light shadow-lg overflow-hidden bg-ghibli-sky relative z-10">
-          <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Felix" alt="Profile" className="w-full h-full bg-ghibli-cloud-deep" />
+          <img src="/avatar/body.svg" alt="Profile" className="w-full h-full bg-ghibli-cloud-deep" />
         </div>
         <div className="nature-panel pl-6 pr-4 py-1.5 -ml-8 flex flex-col justify-center">
           <span className="text-xs font-bold text-ghibli-ink-light ml-2">Lv. 15</span>
@@ -123,8 +123,8 @@ export function GameLayout({ children }: { children: React.ReactNode }) {
             key={pathname}
             initial={{ opacity: 0, scale: 0.98, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.02, filter: "blur(5px)" }}
-            transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+            exit={{ opacity: 0, scale: 1.01 }}
+            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
             className="w-full h-full"
           >
             {children}

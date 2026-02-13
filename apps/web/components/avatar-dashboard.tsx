@@ -82,6 +82,9 @@ async function requestJson<T>(input: string, init?: RequestInit): Promise<T> {
 
 export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps) {
   const router = useRouter();
+  const needsAvatarState = initialScene === "home" || initialScene === "shop" || initialScene === "character";
+  const needsShopState = initialScene === "shop";
+  const needsPresenceSocket = initialScene === "home";
 
   // State
   const [slotFilter, setSlotFilter] = useState<SlotFilter>("all");
@@ -94,8 +97,6 @@ export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps)
 
   // Loading/Error
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   // Actions
   const [pendingItemId, setPendingItemId] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
@@ -127,16 +128,21 @@ export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps)
 
   // --- Effects ---
   useEffect(() => {
+    if (!needsAvatarState) {
+      setLoading(false);
+      return;
+    }
     void refreshAll().then(() => setLoading(false));
-  }, [refreshAll]);
+  }, [needsAvatarState, refreshAll]);
 
   useEffect(() => {
+    if (!needsShopState) return;
     void refreshShop(slotFilter);
-  }, [refreshShop, slotFilter]);
+  }, [needsShopState, refreshShop, slotFilter]);
 
   // Socket Sync (Desktop)
   useEffect(() => {
-    if (!avatarData?.userId) return;
+    if (!needsPresenceSocket || !avatarData?.userId) return;
 
     const connect = async () => {
       try {
@@ -157,7 +163,7 @@ export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps)
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [avatarData?.userId]);
+  }, [avatarData?.userId, needsPresenceSocket]);
 
   // --- Handlers ---
   const handlePurchase = async (item: ShopItem) => {
@@ -167,7 +173,10 @@ export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps)
         method: "POST",
         body: JSON.stringify({ itemId: item.id })
       });
-      await Promise.all([refreshAll(), refreshShop(slotFilter)]);
+      await Promise.all([
+        needsAvatarState ? refreshAll() : Promise.resolve(),
+        needsShopState ? refreshShop(slotFilter) : Promise.resolve()
+      ]);
       toast.success(`${item.name} 구매 완료!`);
     } catch (e) {
       toast.error("구매에 실패했어요");
@@ -194,7 +203,9 @@ export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps)
         ts: Date.now()
       });
 
-      await refreshAll();
+      if (needsAvatarState) {
+        await refreshAll();
+      }
     } catch (e) {
       toast.error("착용에 실패했어요");
     }
@@ -249,13 +260,15 @@ export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps)
         </div>
       )}
 
-      <InventorySheet
-        isOpen={isInventoryOpen}
-        onClose={() => setIsInventoryOpen(false)}
-        items={inventoryData?.items ?? []}
-        equippedBySlot={inventoryData?.equippedBySlot ?? {}}
-        onEquip={handleEquip}
-      />
+      {needsAvatarState && (
+        <InventorySheet
+          isOpen={isInventoryOpen}
+          onClose={() => setIsInventoryOpen(false)}
+          items={inventoryData?.items ?? []}
+          equippedBySlot={inventoryData?.equippedBySlot ?? {}}
+          onEquip={handleEquip}
+        />
+      )}
     </GameLayout>
   );
 }

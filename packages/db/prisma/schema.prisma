@@ -9,6 +9,10 @@ datasource db {
 
 enum AvatarSlot {
   hair
+  eyebrow
+  eyes
+  nose
+  mouth
   top
   bottom
   accessory

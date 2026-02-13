@@ -34,6 +34,10 @@ interface CharacterSceneProps {
 
 const SLOT_LABELS: Record<EquipSlot, string> = {
   hair: "헤어",
+  eyebrow: "눈썹",
+  eyes: "눈",
+  nose: "코",
+  mouth: "입",
   top: "상의",
   bottom: "하의",
   accessory: "악세",

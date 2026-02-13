@@ -19,6 +19,28 @@ interface ShopSceneProps {
   onPurchase: (item: ShopItem) => void;
 }
 
+const FILTERS = [
+  { id: "all", label: "\uC804\uCCB4" },
+  { id: "hair", label: "\uD5E4\uC5B4" },
+  { id: "eyebrow", label: "\uB208\uC379" },
+  { id: "eyes", label: "\uB208" },
+  { id: "nose", label: "\uCF54" },
+  { id: "mouth", label: "\uC785" },
+  { id: "top", label: "\uC0C1\uC758" },
+  { id: "bottom", label: "\uD558\uC758" },
+  { id: "accessory", label: "\uC545\uC138" },
+  { id: "effect", label: "\uC774\uD399\uD2B8" }
+] as const;
+
+const LABEL = {
+  title: "\uC0C1\uC810",
+  subtitle: "\uC0C8\uB85C\uC6B4 \uC544\uC774\uD15C\uC774 \uB3C4\uCC29\uD588\uC5B4\uC694!",
+  owned: "\uBCF4\uC720\uC911",
+  buying: "\uAD6C\uB9E4 \uC911...",
+  bought: "\uAD6C\uB9E4\uC644\uB8CC",
+  buy: "\uAD6C\uB9E4\uD558\uAE30"
+};
+
 export function ShopScene({
   items,
   loading,
@@ -29,32 +51,25 @@ export function ShopScene({
   onChangeFilter,
   onPurchase
 }: ShopSceneProps) {
-  const filters = [
-    { id: "all", label: "전체" },
-    { id: "hair", label: "헤어" },
-    { id: "top", label: "상의" },
-    { id: "bottom", label: "하의" },
-    { id: "accessory", label: "장식" },
-  ];
-
   return (
     <div className="relative w-full h-full flex flex-col pt-20 pb-28 px-0 overflow-hidden">
       <NatureBackground variant="sunset" />
 
-      {/* Header Area */}
       <div className="relative px-6 mb-6">
         <h1 className="text-3xl font-display font-bold text-ghibli-ink flex items-center gap-2">
-          상점 <Badge variant="outline" className="text-ghibli-sunset border-ghibli-sunset/40 text-xs">New</Badge>
+          {LABEL.title}{" "}
+          <Badge variant="outline" className="text-ghibli-sunset border-ghibli-sunset/40 text-xs">
+            New
+          </Badge>
         </h1>
         <p className="text-ghibli-ink-light text-sm mt-1 flex items-center gap-1">
           <ShoppingBag size={14} />
-          새로운 아이템이 입고되었어요!
+          {LABEL.subtitle}
         </p>
       </div>
 
-      {/* Filter Tabs */}
       <div className="relative pl-6 mb-6 overflow-x-auto pb-4 scrollbar-hide flex gap-3">
-        {filters.map((filter) => {
+        {FILTERS.map((filter) => {
           const isActive = slotFilter === filter.id;
           return (
             <button
@@ -80,13 +95,12 @@ export function ShopScene({
         })}
       </div>
 
-      {/* Item Grid */}
       <div className="relative flex-1 overflow-y-auto px-6 pb-24 scrollbar-hide">
         <div className="grid grid-cols-2 gap-4">
           {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-[4/5] rounded-3xl" />
-            ))
+            Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="aspect-[4/5] rounded-3xl" />)
+          ) : error ? (
+            <p className="col-span-2 text-center text-sm text-rose-700">{error}</p>
           ) : (
             items.map((item) => {
               const isOwned = ownedItemIds.has(item.id);
@@ -100,10 +114,8 @@ export function ShopScene({
                   whileTap={{ scale: 0.97 }}
                   className="relative watercolor-card p-3 flex flex-col items-center group overflow-hidden"
                 >
-                  {/* Hover warm glow */}
                   <div className="absolute inset-0 bg-gradient-to-br from-ghibli-cloud via-transparent to-ghibli-meadow/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-[var(--radius)]" />
 
-                  {/* Preview Image */}
                   <div className="w-full aspect-square relative mb-3 bg-ghibli-cloud-deep/40 rounded-xl overflow-hidden flex items-center justify-center">
                     <div className="absolute inset-0 bg-gradient-radial from-white/60 to-transparent" />
                     <img
@@ -114,13 +126,12 @@ export function ShopScene({
                     {isOwned && (
                       <div className="absolute inset-0 bg-ghibli-cloud/60 backdrop-blur-[1px] flex items-center justify-center z-20">
                         <Badge variant="secondary" className="bg-ghibli-earth text-white text-xs shadow-md">
-                          보유중
+                          {LABEL.owned}
                         </Badge>
                       </div>
                     )}
                   </div>
 
-                  {/* Info */}
                   <div className="w-full px-1 text-center mb-3">
                     <h3 className="text-sm font-bold text-ghibli-ink truncate">{item.name}</h3>
                     <div className="flex items-center justify-center gap-1 mt-1">
@@ -129,7 +140,6 @@ export function ShopScene({
                     </div>
                   </div>
 
-                  {/* Action Button */}
                   <button
                     onClick={() => !isOwned && !isPending && onPurchase(item)}
                     disabled={isOwned || isPending}
@@ -140,7 +150,7 @@ export function ShopScene({
                         : "bg-ghibli-forest text-white shadow-md active:scale-95 group-hover:bg-ghibli-sunset"
                     )}
                   >
-                    {isPending ? "구매 중..." : isOwned ? "구매완료" : "구매하기"}
+                    {isPending ? LABEL.buying : isOwned ? LABEL.bought : LABEL.buy}
                   </button>
                 </motion.div>
               );
