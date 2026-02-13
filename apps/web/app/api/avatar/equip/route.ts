@@ -1,7 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createBaseLayers, isEquipSlot } from "../../../../lib/avatar";
+import { toDbErrorResponse } from "../../../../lib/db-error";
 import { getPrismaClient } from "../../../../lib/db";
+import { ensureDbUser } from "../../../../lib/user";
 
 interface EquipBody {
   slot?: string;
@@ -16,10 +18,6 @@ interface EquipWithItem {
     assetWebpUrl: string;
     assetPngUrl: string | null;
   };
-}
-
-function defaultDisplayName(userId: string) {
-  return `mate_${userId.slice(-6)}`;
 }
 
 export async function POST(request: Request) {
@@ -42,14 +40,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Database client not initialized. Run npm run db:generate." }, { status: 503 });
   }
   try {
-    const dbUser = await prisma.user.upsert({
-      where: { clerkUserId: userId },
-      update: {},
-      create: {
-        clerkUserId: userId,
-        displayName: defaultDisplayName(userId)
-      }
-    });
+    const dbUser = await ensureDbUser(prisma, userId);
 
     const item = await prisma.avatarItem.findFirst({
       where: {
@@ -113,27 +104,6 @@ export async function POST(request: Request) {
       }))
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "";
-    const code = typeof error === "object" && error && "code" in error ? String((error as { code?: unknown }).code) : "";
-    const isNetworkError =
-      message.includes("Can't reach database server") || message.includes("empty host in database URL");
-
-    if (isNetworkError) {
-      return NextResponse.json(
-        {
-          error:
-            "Database unreachable. Use Supabase pooler (IPv4) URL for DATABASE_URL, then restart dev server."
-        },
-        { status: 503 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        error: "Database query failed.",
-        detail: process.env.NODE_ENV === "production" ? undefined : message || code || "unknown"
-      },
-      { status: 500 }
-    );
+    return toDbErrorResponse(error);
   }
 }

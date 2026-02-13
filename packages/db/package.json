@@ -5,6 +5,8 @@
   "scripts": {
     "build": "prisma format --schema prisma/schema.prisma",
     "generate": "prisma generate",
+    "push": "prisma db push",
+    "seed": "node prisma/seed.js",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy"
   },

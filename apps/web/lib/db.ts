@@ -1,9 +1,4 @@
-type PrismaClientLike = {
-  user: { upsert: (args: unknown) => Promise<any> };
-  avatarEquip: { findMany: (args: unknown) => Promise<any[]>; upsert: (args: unknown) => Promise<any> };
-  avatarItem: { findFirst: (args: unknown) => Promise<any> };
-  inventoryItem: { findFirst: (args: unknown) => Promise<any> };
-};
+export type PrismaClientLike = any;
 
 declare global {
   var __mateonPrisma: PrismaClientLike | undefined;

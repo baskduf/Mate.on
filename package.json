@@ -12,6 +12,8 @@
     "dev:desktop": "npm --workspace @mateon/desktop run dev",
     "dev:servers": "node scripts/dev-servers.mjs",
     "db:generate": "npm install --no-package-lock --prefix packages/db && npm --workspace @mateon/db run generate",
+    "db:push": "npm --workspace @mateon/db run push",
+    "db:seed": "npm --workspace @mateon/db run seed",
     "db:migrate:dev": "npm --workspace @mateon/db run migrate:dev",
     "build": "npm run build --workspaces --if-present"
   }
