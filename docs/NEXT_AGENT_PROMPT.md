@@ -26,6 +26,8 @@ Context:
   - new event `avatar:equip` in `packages/shared/src/socket-events.ts`
   - relay in `apps/socket/src/main.ts`
   - client emit/listen wiring in `apps/web/components/avatar-dashboard.tsx`
+- Realtime signal panel refreshes auth token on unauthorized reconnect attempts:
+  - client retries `/api/socket/token` on `connect_error` and updates socket auth before reconnect
 - Electron overlay now supports capture protection toggle:
   - `MATEON_CONTENT_PROTECTION` (default enabled) controls `BrowserWindow.setContentProtection(true)`
 
