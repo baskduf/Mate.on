@@ -1,0 +1,40 @@
+﻿:root {
+  --paper: #f5efe2;
+  --sand: #e7dbc3;
+  --ink-black: #201d28;
+  --pencil-grey: #5f566e;
+  --soft-grey: #8e879a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  color: var(--ink-black);
+  font-family: var(--font-body), "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(236, 218, 184, 0.52), transparent 30%),
+    radial-gradient(circle at 88% 8%, rgba(205, 192, 234, 0.36), transparent 34%),
+    linear-gradient(160deg, #f8f3e8 0%, var(--paper) 56%, var(--sand) 100%);
+}
+
+h1,
+h2,
+h3,
+button {
+  font-family: var(--font-display), var(--font-body), sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}

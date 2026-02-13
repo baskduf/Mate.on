@@ -1,0 +1,87 @@
+﻿.toast {
+  margin: 0 0 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  animation: toastReveal 220ms ease-out;
+}
+
+.toastError {
+  color: #90251e;
+  background: #ffd9d6;
+  border: 1px solid #ff6961;
+}
+
+.toastNotice {
+  color: #2f6e2d;
+  background: #d7f5d7;
+  border: 1px solid #77dd77;
+}
+
+.squareScene {
+  height: 100%;
+  border-radius: 22px;
+  border: 1px solid rgba(57, 42, 87, 0.22);
+  background:
+    radial-gradient(circle at 20% 14%, rgba(252, 239, 204, 0.72), transparent 46%),
+    radial-gradient(circle at 80% 18%, rgba(222, 242, 255, 0.62), transparent 42%),
+    linear-gradient(180deg, #f8f3e6, #e8dcfb);
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.squareBadge {
+  margin: 0;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #514565;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.squareScene h1 {
+  margin: 0;
+  color: #2a223b;
+}
+
+.squareScene p {
+  margin: 0;
+  color: #514565;
+  font-weight: 700;
+}
+
+.squareQuick {
+  width: 100%;
+  max-width: 260px;
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.squareCard {
+  border-radius: 12px;
+  border: 1px solid rgba(57, 42, 87, 0.16);
+  background: rgba(255, 255, 255, 0.84);
+  padding: 9px 10px;
+  font-size: 12px;
+  color: #4d4262;
+  font-weight: 700;
+}
+
+@keyframes toastReveal {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

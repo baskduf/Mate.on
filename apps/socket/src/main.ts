@@ -2,6 +2,7 @@ import "dotenv/config";
 import Fastify from "fastify";
 import { Server } from "socket.io";
 import type {
+  AvatarEquipPayload,
   AvatarMovePayload,
   ChatBubblePayload,
   IceCandidatePayload,
@@ -119,6 +120,18 @@ presence.on("connection", (socket) => {
         ts: payload.ts
       });
     }
+  });
+
+  socket.on("avatar:equip", (payload: AvatarEquipPayload) => {
+    const roomId = sanitizeRoomId(payload.hostUserId);
+    if (!roomId || !socket.rooms.has(roomId)) {
+      return;
+    }
+
+    socket.to(roomId).emit("avatar:equip", {
+      ...payload,
+      userId: socket.data.userId ?? "unknown"
+    });
   });
 
   socket.on("disconnect", () => app.log.info({ id: socket.id }, "presence disconnected"));

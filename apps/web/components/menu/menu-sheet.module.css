@@ -1,0 +1,93 @@
+﻿.overlay,
+.overlayOpen {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.overlayOpen {
+  pointer-events: auto;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(34, 24, 56, 0.34);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.overlayOpen .scrim {
+  opacity: 1;
+}
+
+.sheet,
+.sheetOpen {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: linear-gradient(180deg, #fffef6 0%, #f6f0ff 100%);
+  border-top: 1px solid rgba(122, 91, 175, 0.25);
+  padding: 14px 14px 18px;
+  transform: translateY(102%);
+  transition: transform 220ms ease-out;
+}
+
+.sheetOpen {
+  transform: translateY(0);
+}
+
+.header {
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 11px;
+  color: #7f6a9c;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.header h2 {
+  margin: 2px 0 0;
+  font-size: 22px;
+  color: #2f2544;
+}
+
+.actions {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.actionButton,
+.actionButtonMuted,
+.closeButton {
+  border: 0;
+  border-radius: 12px;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+.actionButton {
+  background: #7f5bb4;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.actionButtonMuted {
+  background: rgba(255, 255, 255, 0.84);
+  color: #8c81a3;
+}
+
+.closeButton {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.84);
+  color: #5f517e;
+  cursor: pointer;
+}

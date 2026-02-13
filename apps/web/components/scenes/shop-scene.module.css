@@ -1,0 +1,214 @@
+﻿.scene {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 10px;
+  padding: 2px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.72), rgba(235, 246, 255, 0.6));
+}
+
+.header {
+  display: grid;
+  gap: 2px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 11px;
+  color: #6a5b84;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 27px;
+  color: #261f36;
+}
+
+.slotFilters {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.slotFilter,
+.slotFilterActive,
+.primaryButton {
+  border: 0;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.slotFilter,
+.slotFilterActive {
+  padding: 8px 12px;
+  white-space: nowrap;
+  color: #514565;
+  transition: transform 140ms ease;
+}
+
+.slotFilter {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.slotFilterActive {
+  background: #231f2f;
+  color: #f1ebdf;
+}
+
+.slotFilter:hover,
+.slotFilterActive:hover {
+  transform: translateY(-1px);
+}
+
+.stateText,
+.stateError {
+  margin: 0;
+  font-weight: 700;
+}
+
+.stateText {
+  color: #66587f;
+}
+
+.stateError {
+  color: #9b3333;
+}
+
+.itemList {
+  margin: 0;
+  padding: 0 2px 4px;
+  list-style: none;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  overflow: auto;
+}
+
+.itemCard {
+  border-radius: 16px;
+  border: 1px solid rgba(60, 45, 92, 0.16);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 10px;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.itemCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 14px rgba(40, 36, 53, 0.08);
+}
+
+.itemTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 8px;
+}
+
+.itemTopRow strong {
+  display: block;
+  color: #2a223b;
+}
+
+.itemTopRow p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #675980;
+}
+
+.itemPreview {
+  margin: 8px 0;
+  height: 82px;
+  border-radius: 12px;
+  border: 1px dashed rgba(84, 61, 122, 0.22);
+  background: linear-gradient(160deg, rgba(255, 248, 221, 0.72), rgba(239, 227, 255, 0.78));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.itemPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.itemPreview span {
+  font-size: 12px;
+  color: #7d6b9d;
+}
+
+.itemBottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.itemBottomRow span {
+  font-size: 13px;
+  color: #594c74;
+  font-weight: 700;
+}
+
+.primaryButton {
+  padding: 8px 12px;
+  background: #231f2f;
+  color: #f1ebdf;
+  transition: transform 140ms ease;
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.rarityBadge {
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+}
+
+.rarityDefault {
+  color: #2f4f58;
+  border-color: #79b6c8;
+  background: #d2f0f8;
+}
+
+.rarityCommon {
+  color: #306636;
+  border-color: #5cb66a;
+  background: #dff6df;
+}
+
+.rarityRare {
+  color: #0f4261;
+  border-color: #4a97c3;
+  background: #d6efff;
+}
+
+.rarityEpic {
+  color: #5a3d7f;
+  border-color: #9b70d1;
+  background: #eadbff;
+}
+
+.rarityLegendary {
+  color: #725305;
+  border-color: #d8a220;
+  background: #ffeebd;
+}

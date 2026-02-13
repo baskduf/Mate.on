@@ -26,6 +26,17 @@ export interface ChatBubblePayload {
   ts: number;
 }
 
+export interface AvatarEquipPayload {
+  hostUserId: string;
+  layers: Record<string, string | null>;
+  equipped: Array<{ slot: string; itemId: string; name?: string }>;
+  ts: number;
+}
+
+export interface AvatarEquipBroadcastPayload extends AvatarEquipPayload {
+  userId: string;
+}
+
 export interface AvatarStatePayload {
   userId: string;
   x: number;
@@ -39,6 +50,7 @@ export interface PresenceClientToServerEvents {
   "room:join": (payload: { hostUserId: string }) => void;
   "room:leave": (payload: { hostUserId: string }) => void;
   "avatar:move": (payload: AvatarMovePayload) => void;
+  "avatar:equip": (payload: AvatarEquipPayload) => void;
   "chat:bubble": (payload: ChatBubblePayload) => void;
 }
 
@@ -46,6 +58,7 @@ export interface PresenceServerToClientEvents {
   "room:user_joined": (payload: { userId: string; avatarState?: AvatarStatePayload }) => void;
   "room:user_left": (payload: { userId: string }) => void;
   "avatar:state": (payload: AvatarStatePayload) => void;
+  "avatar:equip": (payload: AvatarEquipBroadcastPayload) => void;
   "chat:bubble": (payload: { userId: string; text: string; ts: number }) => void;
 }
 

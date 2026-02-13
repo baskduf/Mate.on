@@ -1,0 +1,152 @@
+﻿.room {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+}
+
+.header {
+  display: grid;
+  gap: 2px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 11px;
+  color: #6a5b84;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 27px;
+  color: #261f36;
+}
+
+.stage {
+  position: relative;
+  border-radius: 22px;
+  border: 1px solid rgba(57, 42, 87, 0.22);
+  background:
+    radial-gradient(circle at 50% 25%, rgba(255, 252, 244, 0.94), rgba(241, 232, 215, 0.78) 48%, rgba(225, 216, 248, 0.8) 100%),
+    linear-gradient(180deg, rgba(247, 238, 219, 0.82), rgba(221, 207, 245, 0.74));
+  box-shadow:
+    inset 0 -46px 86px rgba(72, 46, 116, 0.13),
+    0 12px 24px rgba(35, 25, 55, 0.13);
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  overflow: hidden;
+}
+
+.stage::before {
+  content: "";
+  position: absolute;
+  width: min(88%, 340px);
+  height: 96px;
+  border-radius: 999px;
+  bottom: 16px;
+  background: radial-gradient(circle at 50% 40%, rgba(77, 50, 115, 0.24), rgba(77, 50, 115, 0));
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  top: -120px;
+  right: -90px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+}
+
+.stateText,
+.stateError {
+  margin: 0;
+  font-weight: 700;
+}
+
+.stateText {
+  color: #66587f;
+}
+
+.stateError {
+  color: #9b3333;
+}
+
+.emptyRoom {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  text-align: center;
+  color: #4d4166;
+  font-weight: 700;
+}
+
+.createButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #5f3f90;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.createButton:hover {
+  transform: translateY(-1px);
+}
+
+.avatarWrap {
+  position: relative;
+  z-index: 1;
+}
+
+.thoughtBubble {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(84, 61, 122, 0.2);
+  background: rgba(255, 255, 255, 0.88);
+  color: #4d4166;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.editButton {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 13px;
+  background: #231f2f;
+  color: #f2ecdf;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 18px rgba(36, 24, 53, 0.33);
+  transition: transform 160ms ease;
+}
+
+.editButton:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+  .stage {
+    padding: 16px;
+  }
+
+  .thoughtBubble {
+    font-size: 11px;
+  }
+}
