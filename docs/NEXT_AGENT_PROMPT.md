@@ -8,6 +8,7 @@ Context:
 - Current APIs implemented and DB-wired:
   - `GET /api/me`
   - `GET /api/avatar/me`
+  - `POST /api/avatar/create`
   - `POST /api/avatar/equip`
   - `GET /api/shop/items`
   - `POST /api/shop/purchase`
@@ -17,8 +18,8 @@ Context:
   - `/` renders My Room scene (home)
   - `/shop` renders shop scene
   - `/square` renders square placeholder scene
-  - shared mobile game shell with top currency + bottom nav (home, shop, square, menu)
-  - inventory is a slide-up sheet opened via My Room edit button or bottom menu
+  - shared mobile game shell with top currency + bottom nav (home, square, shop, character)
+  - character scene handles inventory and equip flow
 - Avatar component split:
   - `AvatarPreview` moved to `apps/web/components/avatar/avatar-preview.tsx`
   - compatibility re-export remains at `apps/web/components/avatar-preview.tsx`
@@ -40,7 +41,7 @@ Hard requirements:
 5. Keep docs QA and handoff sections aligned with current route structure.
 
 Recommended execution order:
-1. Implement real `/create-avatar` route and connect My Room empty-state create button.
+1. Frontend: wire My Room empty-state `생성하기` button to `/create-avatar` and consume `POST /api/avatar/create`.
 2. Define square scene MVP scope (placeholder vs presence-driven multiplayer view) and implement incrementally.
 3. Decide whether realtime debug panels should live behind a dedicated debug route instead of main scene UI.
 4. Add/extend tests for `avatar:equip` relay and UI-side sync behavior.

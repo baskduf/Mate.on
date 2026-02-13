@@ -8,9 +8,9 @@ Last updated: 2026-02-13
 - Prisma DB access is lazy-loaded in web routes via `@mateon/db/client`.
 - Web UI milestone is implemented:
   - Game-style mobile shell (`GameLayout`) with scene transitions and bottom navigation
-  - Route-based scenes: `/` (홈/My Room), `/shop` (상점), `/square` (광장 placeholder)
-  - Inventory moved to a slide-up sheet (opened from `메뉴` tab or My Room `편집`)
-  - Korean-first labels in navigation/UI (`홈`, `상점`, `광장`, `메뉴`)
+  - Route-based scenes: `/` (홈/My Room), `/shop` (상점), `/square` (광장 placeholder), `/character` (캐릭터)
+  - `/create-avatar` UI route is not implemented yet (backend API is ready)
+  - Korean-first labels in navigation/UI (`홈`, `광장`, `상점`, `캐릭터`)
   - Purchase/equip action wiring with loading/error/empty states in scene flow
 - Realtime presence panel is implemented in web:
   - Socket connect/disconnect
@@ -33,6 +33,7 @@ Last updated: 2026-02-13
   - Shared-room resolver extracted to `apps/socket/src/signal-routing.ts`
 - Avatar APIs are implemented with server-side ownership validation:
   - `GET /api/avatar/me`
+  - `POST /api/avatar/create`
   - `POST /api/avatar/equip`
 - Shop/Inventory APIs are implemented:
   - `GET /api/shop/items`
@@ -177,9 +178,10 @@ Untracked:
 - `apps/socket/src/signal-routing.test.ts`
 
 ## 7) Next Implementation Priority (Recommended)
-1. Implement actual `/create-avatar` flow and wire My Room empty-state `생성하기` button to it.
+1. Frontend: implement `/create-avatar` scene and wire My Room empty-state `생성하기` button to `POST /api/avatar/create`.
 2. Define/implement `광장` MVP behavior (placeholder vs realtime presence-driven scene).
 3. Add socket-level integration tests for `avatar:equip` relay and room-boundary isolation.
+4. Decide whether realtime debug panels should move to a dedicated route (for example `/debug/realtime`).
 
 ## 8) Risks To Handle Early
 - Supabase URL/network mismatch (pooler vs direct).
@@ -198,12 +200,13 @@ Preconditions:
 
 Checklist:
 1. Open `http://localhost:3000`.
-2. Confirm top bar currency and bottom navigation render (`홈`, `상점`, `광장`, `메뉴`).
+2. Confirm top bar currency and bottom navigation render (`홈`, `광장`, `상점`, `캐릭터`).
 3. On `홈` (My Room):
    - avatar shows when owned/equipped data exists
    - empty-state shows `생성하기` when no avatar state exists
-   - `편집` button opens inventory sheet.
-4. Open inventory from bottom `메뉴` and verify slide-up behavior + close (scrim/닫기).
+   - `캐릭터` button routes to `/character`.
+4. (Frontend 구현 후) `생성하기`에서 `/create-avatar` 진입 후 starter avatar 생성이 완료되는지 확인.
+5. Open `/character` and verify owned items render and `착용` action is available.
 5. Navigate to `상점` and switch slot filters (`전체/헤어/상의/하의/악세/이펙트`) and verify list updates.
 6. Purchase a not-owned item and verify:
    - success notice appears
