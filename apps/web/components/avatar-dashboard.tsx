@@ -210,6 +210,7 @@ export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps)
   }, [avatarData]);
 
   const ownedIds = useMemo(() => new Set(inventoryData?.items.map(i => i.item.id)), [inventoryData]);
+  const hasAvatar = useMemo(() => Boolean(avatarData?.equipped?.length), [avatarData?.equipped]);
 
   // --- Render ---
   const searchParams = useSearchParams(); // Needs import from next/navigation
@@ -220,8 +221,10 @@ export function AvatarDashboard({ initialScene = "home" }: AvatarDashboardProps)
       {initialScene === "home" && (
         <MyRoom
           layers={previewLayers}
+          hasAvatar={hasAvatar}
           loading={loading}
           onOpenInventory={() => setIsInventoryOpen(true)}
+          onCreateAvatar={() => router.push("/create-avatar")}
           isOverlay={isOverlay}
         />
       )}

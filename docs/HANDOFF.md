@@ -8,9 +8,8 @@ Last updated: 2026-02-13
 - Prisma DB access is lazy-loaded in web routes via `@mateon/db/client`.
 - Web UI milestone is implemented:
   - Game-style mobile shell (`GameLayout`) with scene transitions and bottom navigation
-  - Route-based scenes: `/` (홈/My Room), `/shop` (상점), `/square` (광장 placeholder), `/character` (캐릭터)
-  - `/create-avatar` UI route is not implemented yet (backend API is ready)
-  - Korean-first labels in navigation/UI (`홈`, `광장`, `상점`, `캐릭터`)
+  - Route-based scenes: `/` (홈/My Room), `/shop` (상점), `/square` (광장 placeholder), `/menu` (메뉴 placeholder), `/create-avatar` (온보딩)
+  - Korean-first labels in navigation/UI (`홈`, `광장`, `상점`, `메뉴`)
   - Purchase/equip action wiring with loading/error/empty states in scene flow
 - Realtime presence panel is implemented in web:
   - Socket connect/disconnect
@@ -179,10 +178,10 @@ Untracked:
 - `apps/socket/src/signal-routing.test.ts`
 
 ## 7) Next Implementation Priority (Recommended)
-1. Frontend: implement `/create-avatar` scene and wire My Room empty-state `생성하기` button to `POST /api/avatar/create`.
-2. Define/implement `광장` MVP behavior (placeholder vs realtime presence-driven scene).
-3. Add socket-level integration tests for `avatar:equip` relay and room-boundary isolation.
-4. Decide whether realtime debug panels should move to a dedicated route (for example `/debug/realtime`).
+1. Define/implement `광장` MVP behavior (placeholder vs realtime presence-driven scene).
+2. Add socket-level integration tests for `avatar:equip` relay and room-boundary isolation.
+3. Decide whether realtime debug panels should move to a dedicated debug route (for example `/debug/realtime`).
+4. Clarify `/menu` scene scope and determine whether inventory/profile/settings should be route-driven from here.
 
 ## 8) Risks To Handle Early
 - Supabase URL/network mismatch (pooler vs direct).
@@ -201,14 +200,16 @@ Preconditions:
 
 Checklist:
 1. Open `http://localhost:3000`.
-2. Confirm top bar currency and bottom navigation render (`홈`, `광장`, `상점`, `캐릭터`).
+2. Confirm top bar currency and bottom navigation render (`홈`, `광장`, `상점`, `메뉴`).
 3. On `홈` (My Room):
    - avatar shows when owned/equipped data exists
    - empty-state shows `생성하기` when no avatar state exists
-   - `캐릭터` button routes to `/character`.
-4. (Frontend 구현 후) `생성하기`에서 `/create-avatar` 진입 후 starter avatar 생성이 완료되는지 확인.
-5. Open `/character` and verify owned items render and `착용` action is available.
-5. Navigate to `상점` and switch slot filters (`전체/헤어/상의/하의/악세/이펙트`) and verify list updates.
+   - `생성하기` 클릭 시 `/create-avatar`로 이동한다.
+4. On `/create-avatar`:
+   - `시작 아바타 생성` 클릭 시 `POST /api/avatar/create`가 호출된다.
+   - 성공 시 성공 메시지 후 `/`로 복귀한다.
+   - 이미 생성된 계정(409)에서는 충돌 메시지와 `내 방으로 이동` 버튼이 보인다.
+5. Navigate to `상점` and switch slot filters (`전체/헤어/상의/하의/악세`) and verify list updates.
 6. Purchase a not-owned item and verify:
    - success notice appears
    - inventory sheet contains newly purchased item
@@ -261,7 +262,7 @@ Checklist:
 5. Disconnect/reopen one window and confirm sync still works after reconnect.
 
 ## 12) Legacy Realtime Panels QA Note
-Current main routes (`/`, `/shop`, `/square`) no longer render `RealtimePresencePanel` and `RealtimeSignalPanel`.
+Current main routes (`/`, `/shop`, `/square`, `/menu`) no longer render `RealtimePresencePanel` and `RealtimeSignalPanel`.
 
 Preconditions:
 - `npm run dev:servers`
