@@ -60,6 +60,7 @@ export interface SignalClientToServerEvents {
 
 export interface SignalServerToClientEvents {
   "signal:peer_joined": (payload: { peerId: string }) => void;
+  "signal:peer_left": (payload: { peerId: string }) => void;
   "webrtc:offer": (payload: { fromPeerId: string; sdp: SessionDescriptionPayload }) => void;
   "webrtc:answer": (payload: { fromPeerId: string; sdp: SessionDescriptionPayload }) => void;
   "webrtc:ice": (payload: { fromPeerId: string; candidate: IceCandidatePayload }) => void;

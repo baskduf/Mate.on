@@ -1,0 +1,253 @@
+.wrap {
+  display: grid;
+  gap: 12px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.topRow h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.topRow p {
+  margin: 4px 0 0;
+  color: var(--pencil-grey);
+}
+
+.status {
+  border-radius: 999px;
+  border: 2px solid transparent;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.statusIdle {
+  color: #245a70;
+  border-color: #7ec5d8;
+  background: #d8f4ff;
+}
+
+.statusConnecting {
+  color: #6d500a;
+  border-color: #e8be4f;
+  background: #fff2c9;
+}
+
+.statusConnected {
+  color: #2c6031;
+  border-color: #77dd77;
+  background: #dbf5db;
+}
+
+.statusError {
+  color: #88251f;
+  border-color: #ff6961;
+  background: #ffd7d4;
+}
+
+.connectRow {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) 110px auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.connectRow label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.connectRow input,
+.connectRow select,
+.hostRow select {
+  height: 40px;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  padding: 0 10px;
+  outline: none;
+  background: #ffffff;
+}
+
+.connectRow input:focus,
+.connectRow select:focus,
+.hostRow select:focus {
+  border-color: #ff9eaa;
+  box-shadow: 0 0 0 3px rgba(255, 158, 170, 0.22);
+}
+
+.connectButton,
+.disconnectButton {
+  height: 40px;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  padding: 0 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 180ms ease-out;
+}
+
+.connectButton {
+  border-color: #ff7e8e;
+  background: #ff9eaa;
+  color: #ffffff;
+  box-shadow: 0 3px 0 #ff7e8e;
+}
+
+.disconnectButton {
+  border-color: #6aaecb;
+  background: #89cff0;
+  color: #12384a;
+  box-shadow: 0 3px 0 #6aaecb;
+}
+
+.connectButton:hover,
+.disconnectButton:hover {
+  transform: translateY(-2px);
+}
+
+.connectButton:active,
+.disconnectButton:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 transparent;
+}
+
+.connectButton:disabled,
+.disconnectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.errorText {
+  margin: 0;
+  border-radius: 12px;
+  background: #ffd9d6;
+  border: 2px solid #ff6961;
+  color: #90251e;
+  padding: 8px 10px;
+  font-weight: 700;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.metaRow span {
+  border-radius: 999px;
+  border: 2px solid #e8ecf0;
+  background: #ffffff;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--pencil-grey);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
+  gap: 12px;
+}
+
+.box {
+  border-radius: 18px;
+  border: 2px solid #eef1f4;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.box h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.box h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--ink-black);
+}
+
+.mutedText {
+  margin: 0;
+  color: var(--soft-grey);
+}
+
+.hostRow {
+  display: grid;
+  grid-template-columns: auto minmax(110px, 140px) auto auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.hostRow label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.videoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.videoCard {
+  border-radius: 14px;
+  border: 2px solid #eef1f4;
+  background: #fbfdff;
+  padding: 8px;
+  min-height: 150px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.video {
+  width: 100%;
+  border-radius: 10px;
+  border: 2px solid #dbe6ee;
+  background: #0f1722;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.logList {
+  margin: 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 4px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.logList li {
+  color: var(--pencil-grey);
+  font-size: 14px;
+}
+
+@media (max-width: 940px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .connectRow,
+  .hostRow {
+    grid-template-columns: 1fr;
+  }
+
+  .topRow {
+    flex-direction: column;
+  }
+}

@@ -9,6 +9,7 @@ import type {
   SocketData
 } from "@mateon/shared";
 import { verifyClerkToken } from "./auth";
+import { resolveSharedSignalRoomId, sanitizeRoomId } from "./signal-routing";
 
 const app = Fastify({ logger: true });
 const io = new Server({
@@ -39,6 +40,39 @@ const applyAuth = async (
 
 const presence = io.of("/presence");
 const signal = io.of("/signal");
+const signalPeerRoomById = new Map<string, string>();
+
+function getSignalRoomForSocket(socketId: string): string | null {
+  const roomId = signalPeerRoomById.get(socketId);
+  if (!roomId) {
+    return null;
+  }
+
+  const socket = signal.sockets.get(socketId);
+  if (!socket || !socket.rooms.has(roomId)) {
+    return null;
+  }
+  return roomId;
+}
+
+function resolveRelayTarget(fromSocketId: string, toPeerId: string) {
+  const senderRoomId = resolveSharedSignalRoomId(signalPeerRoomById, fromSocketId, toPeerId);
+  if (!senderRoomId) {
+    return null;
+  }
+
+  const senderSocket = signal.sockets.get(fromSocketId);
+  const targetSocket = signal.sockets.get(toPeerId);
+  if (!senderSocket || !targetSocket) {
+    return null;
+  }
+
+  if (!senderSocket.rooms.has(senderRoomId) || !targetSocket.rooms.has(senderRoomId)) {
+    return null;
+  }
+
+  return { targetSocket, senderRoomId };
+}
 
 presence.use(applyAuth);
 signal.use(applyAuth);
@@ -93,44 +127,93 @@ presence.on("connection", (socket) => {
 signal.on("connection", (socket) => {
   app.log.info({ id: socket.id, userId: socket.data.userId }, "signal connected");
 
-  socket.on("signal:join", ({ hostUserId }: { hostUserId: string }) => {
-    socket.join(hostUserId);
-    socket.to(hostUserId).emit("signal:peer_joined", { peerId: socket.id });
+  socket.on("signal:join", async ({ hostUserId }: { hostUserId: string }) => {
+    const roomId = sanitizeRoomId(hostUserId);
+    if (!roomId) {
+      app.log.warn({ socketId: socket.id }, "signal join ignored: invalid room id");
+      return;
+    }
+
+    const previousRoomId = signalPeerRoomById.get(socket.id);
+    if (previousRoomId && previousRoomId !== roomId) {
+      socket.to(previousRoomId).emit("signal:peer_left", { peerId: socket.id });
+      socket.leave(previousRoomId);
+    }
+
+    const existingPeers = (await signal.in(roomId).fetchSockets())
+      .map((peerSocket) => peerSocket.id)
+      .filter((peerId) => peerId !== socket.id);
+
+    socket.join(roomId);
+    signalPeerRoomById.set(socket.id, roomId);
+
+    for (const peerId of existingPeers) {
+      socket.emit("signal:peer_joined", { peerId });
+    }
+
+    socket.to(roomId).emit("signal:peer_joined", { peerId: socket.id });
   });
 
   socket.on("webrtc:offer", ({ toPeerId, sdp }: { toPeerId: string; sdp: SessionDescriptionPayload }) => {
-    signal.to(toPeerId).emit("webrtc:offer", { fromPeerId: socket.id, sdp });
+    const target = resolveRelayTarget(socket.id, toPeerId);
+    if (!target) {
+      app.log.warn({ fromPeerId: socket.id, toPeerId }, "webrtc offer ignored: room validation failed");
+      return;
+    }
+
+    target.targetSocket.emit("webrtc:offer", { fromPeerId: socket.id, sdp });
   });
 
   socket.on("webrtc:answer", ({ toPeerId, sdp }: { toPeerId: string; sdp: SessionDescriptionPayload }) => {
-    signal.to(toPeerId).emit("webrtc:answer", { fromPeerId: socket.id, sdp });
+    const target = resolveRelayTarget(socket.id, toPeerId);
+    if (!target) {
+      app.log.warn({ fromPeerId: socket.id, toPeerId }, "webrtc answer ignored: room validation failed");
+      return;
+    }
+
+    target.targetSocket.emit("webrtc:answer", { fromPeerId: socket.id, sdp });
   });
 
   socket.on("webrtc:ice", ({ toPeerId, candidate }: { toPeerId: string; candidate: IceCandidatePayload }) => {
-    signal.to(toPeerId).emit("webrtc:ice", { fromPeerId: socket.id, candidate });
+    const target = resolveRelayTarget(socket.id, toPeerId);
+    if (!target) {
+      app.log.warn({ fromPeerId: socket.id, toPeerId }, "webrtc ice ignored: room validation failed");
+      return;
+    }
+
+    target.targetSocket.emit("webrtc:ice", { fromPeerId: socket.id, candidate });
   });
 
-  socket.on("stream:host:start", () => {
-    for (const roomId of socket.rooms) {
-      if (roomId === socket.id) {
-        continue;
-      }
-
-      socket.to(roomId).emit("stream:host:start", { hostPeerId: socket.id });
+  socket.on("stream:host:start", ({ constraintsProfile }: { constraintsProfile: "high" | "balanced" | "low" }) => {
+    const roomId = getSignalRoomForSocket(socket.id);
+    if (!roomId) {
+      app.log.warn({ socketId: socket.id }, "stream host start ignored: socket not in signal room");
+      return;
     }
+
+    app.log.info({ socketId: socket.id, roomId, constraintsProfile }, "stream host start");
+    socket.to(roomId).emit("stream:host:start", { hostPeerId: socket.id });
   });
 
   socket.on("stream:host:stop", () => {
-    for (const roomId of socket.rooms) {
-      if (roomId === socket.id) {
-        continue;
-      }
-
-      socket.to(roomId).emit("stream:host:stop", { hostPeerId: socket.id });
+    const roomId = getSignalRoomForSocket(socket.id);
+    if (!roomId) {
+      app.log.warn({ socketId: socket.id }, "stream host stop ignored: socket not in signal room");
+      return;
     }
+
+    socket.to(roomId).emit("stream:host:stop", { hostPeerId: socket.id });
   });
 
-  socket.on("disconnect", () => app.log.info({ id: socket.id }, "signal disconnected"));
+  socket.on("disconnect", () => {
+    const roomId = signalPeerRoomById.get(socket.id);
+    if (roomId) {
+      socket.to(roomId).emit("signal:peer_left", { peerId: socket.id });
+    }
+
+    signalPeerRoomById.delete(socket.id);
+    app.log.info({ id: socket.id }, "signal disconnected");
+  });
 });
 
 app.get("/health", async () => ({ ok: true }));
