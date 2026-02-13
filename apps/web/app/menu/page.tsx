@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import { AvatarDashboard } from "../../components/avatar-dashboard";
 
-export default function SquarePage() {
+export default function MenuPage() {
   return (
     <Suspense>
-      <AvatarDashboard initialScene="square" />
+      <AvatarDashboard initialScene="menu" />
     </Suspense>
   );
 }

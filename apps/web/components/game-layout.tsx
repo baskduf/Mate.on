@@ -1,135 +1,138 @@
-﻿"use client";
+"use client";
 
-import type { ReactNode } from "react";
-import Link from "next/link";
-import styles from "./game-layout.module.css";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Home, Map as MapIcon, ShoppingBag, Menu, Settings, Plus, Leaf } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export type GameScene = "home" | "square" | "shop" | "character";
+/**
+ * Bottom Navigation Bar
+ * Ghibli nature-themed floating dock
+ */
+function BottomNav() {
+  const router = useRouter();
+  const pathname = usePathname();
 
-interface GameLayoutProps {
-  scene: GameScene;
-  coins: number | null;
-  gems: number | null;
-  children: ReactNode;
-}
-
-interface RouteTab {
-  key: GameScene;
-  href: string;
-  label: string;
-  icon: "home" | "square" | "shop" | "character";
-}
-
-const ROUTE_TABS: RouteTab[] = [
-  { key: "home", href: "/", label: "홈", icon: "home" },
-  { key: "square", href: "/square", label: "광장", icon: "square" },
-  { key: "shop", href: "/shop", label: "상점", icon: "shop" },
-  { key: "character", href: "/character", label: "캐릭터", icon: "character" }
-];
-
-function AppIcon({ type }: { type: "mail" | "settings" | RouteTab["icon"] }) {
-  if (type === "mail") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 7h16v10H4z" />
-        <path d="M4 8l8 6 8-6" />
-      </svg>
-    );
-  }
-
-  if (type === "settings") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 9.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Z" />
-        <path d="m19 12-.8-.4a6.6 6.6 0 0 0-.3-1.2l.5-.8-1.7-1.7-.8.5c-.4-.2-.8-.3-1.2-.4L14 6h-2l-.5.8c-.4.1-.8.2-1.2.4l-.8-.5-1.7 1.7.5.8c-.2.4-.3.8-.4 1.2L6 12v2l.8.5c.1.4.2.8.4 1.2l-.5.8 1.7 1.7.8-.5c.4.2.8.3 1.2.4l.5.8h2l.5-.8c.4-.1.8-.2 1.2-.4l.8.5 1.7-1.7-.5-.8c.2-.4.3-.8.4-1.2l.8-.5v-2Z" />
-      </svg>
-    );
-  }
-
-  if (type === "home") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 11.5 12 5l8 6.5V20h-5v-5h-6v5H4z" />
-      </svg>
-    );
-  }
-
-  if (type === "square") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" />
-        <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
-      </svg>
-    );
-  }
-
-  if (type === "shop") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6 9h12l-1 11H7L6 9Z" />
-        <path d="M9 9a3 3 0 0 1 6 0" />
-      </svg>
-    );
-  }
+  const navItems = [
+    { label: "홈", icon: Home, path: "/" },
+    { label: "광장", icon: MapIcon, path: "/square" },
+    { label: "상점", icon: ShoppingBag, path: "/shop" },
+    { label: "메뉴", icon: Menu, path: "/menu" },
+  ];
 
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 12a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2Z" />
-      <path d="M6 20a6 6 0 0 1 12 0" />
-    </svg>
-  );
-}
-
-function formatCurrency(value: number | null): string {
-  if (value === null || !Number.isFinite(value)) {
-    return "...";
-  }
-
-  return value.toLocaleString();
-}
-
-export function GameLayout({ scene, coins, gems, children }: GameLayoutProps) {
-  return (
-    <main className={styles.shell}>
-      <div className={styles.mobileFrame}>
-        <header className={styles.topBar}>
-          <div className={styles.currencyWrap}>
-            <div className={styles.currencyPill}>
-              <span>보석</span>
-              <strong>{formatCurrency(gems)}</strong>
-            </div>
-            <div className={styles.currencyPill}>
-              <span>코인</span>
-              <strong>{formatCurrency(coins)}</strong>
-            </div>
-          </div>
-
-          <div className={styles.topIcons}>
-            <button type="button" className={styles.iconButton} aria-label="우편">
-              <AppIcon type="mail" />
-            </button>
-            <button type="button" className={styles.iconButton} aria-label="설정">
-              <AppIcon type="settings" />
-            </button>
-          </div>
-        </header>
-
-        <section key={scene} className={styles.viewport}>
-          {children}
-        </section>
-
-        <nav className={styles.bottomNav} aria-label="게임 탐색">
-          {ROUTE_TABS.map((tab) => (
-            <Link key={tab.key} href={tab.href} className={tab.key === scene ? styles.navItemActive : styles.navItem}>
-              <span className={styles.navGlyph}>
-                <AppIcon type={tab.icon} />
-              </span>
-              <span>{tab.label}</span>
-            </Link>
-          ))}
-        </nav>
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4">
+      <div className="nature-panel px-6 py-4 flex justify-between items-center shadow-lg">
+        {navItems.map((item) => {
+          const isActive = pathname === item.path;
+          return (
+            <motion.button
+              key={item.path}
+              onClick={() => router.push(item.path)}
+              whileTap={{ scale: 0.8 }}
+              className="relative flex flex-col items-center justify-center gap-1 group w-14 h-14"
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="active-blob"
+                  className="absolute inset-0 bg-ghibli-forest rounded-2xl -z-10 shadow-lg"
+                  style={{ boxShadow: "0 4px 16px rgba(74, 124, 89, 0.35)" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                />
+              )}
+              <item.icon
+                size={28}
+                className={cn(
+                  "transition-all duration-300",
+                  isActive ? "text-white scale-110" : "text-ghibli-ink-light group-hover:text-ghibli-forest"
+                )}
+                strokeWidth={isActive ? 3 : 2.5}
+              />
+            </motion.button>
+          );
+        })}
       </div>
-    </main>
+    </div>
   );
 }
 
+/**
+ * Top Status Bar
+ * Ghibli nature-themed HUD
+ */
+function TopBar() {
+  return (
+    <div className="fixed top-0 left-0 right-0 p-4 z-50 flex justify-between items-start pointer-events-none">
+      {/* Profile / Level (Left) */}
+      <div className="pointer-events-auto flex items-center gap-3">
+        <div className="w-12 h-12 rounded-full border-2 border-ghibli-forest-light shadow-lg overflow-hidden bg-ghibli-sky relative z-10">
+          <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Felix" alt="Profile" className="w-full h-full bg-ghibli-cloud-deep" />
+        </div>
+        <div className="nature-panel pl-6 pr-4 py-1.5 -ml-8 flex flex-col justify-center">
+          <span className="text-xs font-bold text-ghibli-ink-light ml-2">Lv. 15</span>
+          <div className="w-20 h-2 bg-ghibli-cloud-deep rounded-full ml-2 overflow-hidden">
+            <div className="h-full bg-ghibli-meadow rounded-full w-[70%]" />
+          </div>
+        </div>
+      </div>
+
+      {/* Currency Pill (Right) */}
+      <div className="pointer-events-auto flex flex-col items-end gap-2">
+        <div className="nature-panel pl-2 pr-4 py-1.5 flex items-center gap-2 shadow-md">
+          <div className="w-8 h-8 rounded-full bg-ghibli-sunset-light border-2 border-white flex items-center justify-center shadow-sm">
+            <Leaf size={16} className="text-ghibli-forest" />
+          </div>
+          <span className="font-display font-bold text-ghibli-ink text-lg">1,250</span>
+          <button className="w-6 h-6 rounded-full bg-ghibli-forest text-white flex items-center justify-center shadow-sm active:scale-90 transition-transform">
+            <Plus size={14} strokeWidth={4} />
+          </button>
+        </div>
+        <button className="w-10 h-10 nature-panel flex items-center justify-center hover:bg-ghibli-cloud-deep transition-colors shadow-md rounded-full btn-organic text-ghibli-ink-light">
+          <Settings size={20} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function GameLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isOverlay = searchParams.get("overlay") === "1";
+
+  if (isOverlay) {
+    return (
+      <div className="relative w-full h-screen overflow-hidden bg-transparent">
+        <main className="w-full h-full relative">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full h-screen overflow-hidden">
+      {/* Soft warm gradient overlay */}
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-ghibli-cloud/40 z-0" />
+
+      <TopBar />
+
+      <main className="w-full h-full relative z-0">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 1.02, filter: "blur(5px)" }}
+            transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+            className="w-full h-full"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      <BottomNav />
+    </div>
+  );
+}

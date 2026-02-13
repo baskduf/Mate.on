@@ -1,5 +1,10 @@
-﻿import { AvatarDashboard } from "../../components/avatar-dashboard";
+import { Suspense } from "react";
+import { AvatarDashboard } from "../../components/avatar-dashboard";
 
 export default function CharacterPage() {
-  return <AvatarDashboard initialScene="character" />;
+  return (
+    <Suspense>
+      <AvatarDashboard initialScene="character" />
+    </Suspense>
+  );
 }

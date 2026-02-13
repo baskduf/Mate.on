@@ -63,7 +63,7 @@ export function CharacterScene({
       </header>
 
       <div className={styles.previewCard}>
-        <AvatarPreview layers={layers} size={226} showAnchor={false} />
+        <AvatarPreview layers={layers as Record<string, string>} width={226} height={280} />
       </div>
 
       {actionError ? <p className={styles.actionError}>{actionError}</p> : null}

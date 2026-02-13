@@ -1,151 +1,71 @@
-﻿"use client";
+"use client";
 
-import { useEffect } from "react";
-import { type EquipSlot, isEquipSlot } from "../../lib/avatar";
-import styles from "./inventory-sheet.module.css";
-
-interface InventoryItem {
-  inventoryId: string;
-  acquiredAt: string;
-  equipped: boolean;
-  item: {
-    id: string;
-    slot: string;
-    name: string;
-    rarity: string;
-    price: number;
-    assetWebpUrl: string;
-    assetPngUrl: string | null;
-    isActive: boolean;
-  };
-}
+import { type InventoryItem } from "../avatar-dashboard";
+import { Check, Package } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface InventorySheetProps {
-  open: boolean;
-  loading: boolean;
-  error: string | null;
+  isOpen: boolean;
+  onClose: () => void;
   items: InventoryItem[];
   equippedBySlot: Record<string, string>;
-  equipPendingItemId: string | null;
-  actionError: string | null;
-  actionNotice: string | null;
-  onClose: () => void;
-  onEquip: (slot: EquipSlot, item: InventoryItem["item"]) => void;
+  onEquip: (slot: string, item: any) => void;
 }
 
-const SLOT_LABELS: Record<EquipSlot, string> = {
-  hair: "헤어",
-  top: "상의",
-  bottom: "하의",
-  accessory: "악세",
-  effect: "이펙트"
-};
-
-function resolveAsset(assetWebpUrl: string, assetPngUrl: string | null): string | null {
-  return assetWebpUrl || assetPngUrl || null;
-}
-
-export function InventorySheet({
-  open,
-  loading,
-  error,
-  items,
-  equippedBySlot,
-  equipPendingItemId,
-  actionError,
-  actionNotice,
-  onClose,
-  onEquip
-}: InventorySheetProps) {
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open, onClose]);
-
+export function InventorySheet({ isOpen, onClose, items, equippedBySlot, onEquip }: InventorySheetProps) {
   return (
-    <div className={open ? styles.overlayOpen : styles.overlay}>
-      <button type="button" className={styles.scrim} aria-label="닫기" onClick={onClose} />
+    <Sheet open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
+      <SheetContent
+        side="bottom"
+        showCloseButton
+        className="h-[75vh] rounded-t-[2rem] nature-panel border-t-0"
+      >
+        {/* Header */}
+        <SheetHeader className="border-b border-ghibli-mist/50 pb-4">
+          <SheetTitle className="flex items-center gap-2 text-xl font-display font-bold text-ghibli-ink">
+            <Package size={22} className="text-ghibli-forest" />
+            나의 가방
+          </SheetTitle>
+        </SheetHeader>
 
-      <section className={open ? styles.sheetOpen : styles.sheet} aria-hidden={!open}>
-        <header className={styles.sheetHeader}>
-          <div>
-            <p className={styles.subtitle}>메뉴</p>
-            <h2>인벤토리</h2>
-          </div>
-          <button type="button" className={styles.closeButton} onClick={onClose}>
-            닫기
-          </button>
-        </header>
+        {/* Grid */}
+        <div className="flex-1 overflow-y-auto grid grid-cols-3 gap-4 p-4 content-start scrollbar-hide">
+          {items.map((entry) => {
+            const isEquipped = equippedBySlot[entry.item.slot] === entry.item.id;
 
-        {actionError ? <p className={styles.actionError}>{actionError}</p> : null}
-        {actionNotice ? <p className={styles.actionNotice}>{actionNotice}</p> : null}
+            return (
+              <button
+                key={entry.inventoryId}
+                onClick={() => onEquip(entry.item.slot, entry.item)}
+                className={cn(
+                  "aspect-square rounded-2xl flex flex-col items-center justify-center relative transition-all duration-200 group border-2",
+                  isEquipped
+                    ? "bg-ghibli-forest/10 border-ghibli-forest shadow-inner"
+                    : "bg-ghibli-cloud border-transparent shadow-sm hover:shadow-md hover:-translate-y-1"
+                )}
+              >
+                <img
+                  src={entry.item.assetWebpUrl}
+                  alt={entry.item.name}
+                  className="w-[70%] h-[70%] object-contain drop-shadow-sm group-hover:scale-110 transition-transform"
+                />
 
-        {loading ? <p className={styles.stateText}>인벤토리를 불러오는 중...</p> : null}
-        {error ? <p className={styles.stateError}>{error}</p> : null}
-
-        {!loading && !error && !items.length ? <p className={styles.stateText}>보유한 아이템이 없습니다.</p> : null}
-
-        {!loading && !error && items.length ? (
-          <ul className={styles.itemList}>
-            {items.map((entry) => {
-              const slot = isEquipSlot(entry.item.slot) ? entry.item.slot : null;
-              const pending = equipPendingItemId === entry.item.id;
-              const selectedItemId = slot ? equippedBySlot[slot] : "";
-              const isCurrentlyEquipped = selectedItemId === entry.item.id || entry.equipped;
-              const canEquip = Boolean(slot) && !isCurrentlyEquipped;
-              const asset = resolveAsset(entry.item.assetWebpUrl, entry.item.assetPngUrl);
-
-              return (
-                <li key={entry.inventoryId} className={styles.itemCard}>
-                  <div className={styles.itemTopRow}>
-                    <div>
-                      <strong>{entry.item.name}</strong>
-                      <p>{slot ? SLOT_LABELS[slot] : entry.item.slot}</p>
-                    </div>
-                    {isCurrentlyEquipped ? <span className={styles.equippedMarker}>착용중</span> : null}
+                {isEquipped && (
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-ghibli-forest rounded-full flex items-center justify-center shadow-md animate-bloom">
+                    <Check size={14} className="text-white" strokeWidth={4} />
                   </div>
-
-                  <div className={styles.itemPreview}>{asset ? <img src={asset} alt={entry.item.name} loading="lazy" /> : <span>미리보기 없음</span>}</div>
-
-                  <div className={styles.itemBottomRow}>
-                    <span>보유</span>
-                    <button
-                      type="button"
-                      className={styles.equipButton}
-                      disabled={!canEquip || pending}
-                      onClick={() => {
-                        if (slot) {
-                          onEquip(slot, entry.item);
-                        }
-                      }}
-                    >
-                      {isCurrentlyEquipped ? "착용중" : pending ? "적용 중..." : "착용"}
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        ) : null}
-      </section>
-    </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
-

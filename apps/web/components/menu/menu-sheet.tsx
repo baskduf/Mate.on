@@ -1,7 +1,14 @@
-﻿"use client";
+"use client";
 
-import { useEffect } from "react";
-import styles from "./menu-sheet.module.css";
+import { Package, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 
 interface MenuSheetProps {
   open: boolean;
@@ -10,53 +17,44 @@ interface MenuSheetProps {
 }
 
 export function MenuSheet({ open, onClose, onOpenInventory }: MenuSheetProps) {
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open, onClose]);
-
   return (
-    <div className={open ? styles.overlayOpen : styles.overlay}>
-      <button type="button" className={styles.scrim} aria-label="닫기" onClick={onClose} />
+    <Sheet open={open} onOpenChange={(v: boolean) => !v && onClose()}>
+      <SheetContent
+        side="bottom"
+        showCloseButton
+        className="h-auto max-h-[60vh] rounded-t-[2rem] nature-panel border-t-0"
+      >
+        <SheetHeader className="border-b border-ghibli-mist/50 pb-4">
+          <SheetTitle className="font-display font-bold text-xl text-ghibli-ink">메뉴</SheetTitle>
+          <SheetDescription className="text-ghibli-ink-light text-sm">
+            원하는 기능을 선택하세요
+          </SheetDescription>
+        </SheetHeader>
 
-      <section className={open ? styles.sheetOpen : styles.sheet} aria-hidden={!open}>
-        <header className={styles.header}>
-          <p className={styles.subtitle}>메뉴</p>
-          <h2>메뉴</h2>
-        </header>
-
-        <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.actionButton}
+        <div className="flex flex-col gap-3 p-4">
+          <Button
+            variant="nature"
+            size="lg"
+            className="w-full justify-start gap-3 text-base"
             onClick={() => {
               onClose();
               onOpenInventory();
             }}
           >
+            <Package size={20} className="text-ghibli-forest" />
             인벤토리
-          </button>
-          <button type="button" className={styles.actionButtonMuted} disabled>
+          </Button>
+          <Button
+            variant="nature"
+            size="lg"
+            className="w-full justify-start gap-3 text-base"
+            disabled
+          >
+            <User size={20} className="text-ghibli-ink-light" />
             프로필 (준비중)
-          </button>
+          </Button>
         </div>
-
-        <button type="button" className={styles.closeButton} onClick={onClose}>
-          닫기
-        </button>
-      </section>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 }

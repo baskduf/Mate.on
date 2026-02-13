@@ -503,7 +503,7 @@ export function RealtimeSignalPanel({ initialHostUserId }: RealtimeSignalPanelPr
         }
       });
 
-      socket.on("signal:peer_left", ({ peerId }) => {
+      (socket as any).on("signal:peer_left", ({ peerId }: { peerId: string }) => {
         unregisterPeer(peerId);
         pushSignalLog(`peer left: ${peerId}`);
       });

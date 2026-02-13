@@ -1,67 +1,47 @@
-﻿import { AVATAR_ANCHOR, AVATAR_CANVAS, LAYER_ORDER, type LayerRecord } from "../../lib/avatar";
+﻿"use client";
+
+import { useMemo } from "react";
+import styles from "./avatar-preview.module.css";
+
+// Shared interfaces from existing code
+export type LayerRecord = Record<string, string>;
 
 interface AvatarPreviewProps {
   layers: LayerRecord;
-  size?: number;
-  showAnchor?: boolean;
+  width?: number;
+  height?: number;
+  loading?: boolean;
 }
 
-export function AvatarPreview({ layers, size = 320, showAnchor = true }: AvatarPreviewProps) {
-  const scale = size / AVATAR_CANVAS.width;
+export function AvatarPreview({ layers, width = 300, height = 400, loading = false }: AvatarPreviewProps) {
+  // Sort layers for proper rendering order (body -> clothes -> accessories)
+  // This order logic should match the original implementation
+  const sortedLayers = useMemo(() => {
+    const layerOrder = ["shadow", "body", "bottom", "top", "hair", "accessory", "effect"];
+    return layerOrder
+      .map((key) => ({ key, url: layers[key] }))
+      .filter((layer) => !!layer.url);
+  }, [layers]);
+
+  if (loading) {
+    return (
+      <div className={styles.skeleton} style={{ width, height }}>
+        <div className={styles.spinner} />
+      </div>
+    );
+  }
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: size,
-        height: size,
-        borderRadius: 24,
-        background: "linear-gradient(180deg, #f7f2ff 0%, #fffdf4 100%)",
-        border: "1px solid #e2daf3",
-        overflow: "hidden"
-      }}
-    >
-      {LAYER_ORDER.map((layerKey) => {
-        const source = layers[layerKey];
-        if (!source) {
-          return null;
-        }
-
-        return (
-          <img
-            key={layerKey}
-            src={source}
-            alt={layerKey}
-            draggable={false}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              userSelect: "none"
-            }}
-          />
-        );
-      })}
-
-      {showAnchor ? (
-        <div
-          title="anchor"
-          style={{
-            position: "absolute",
-            width: 10,
-            height: 10,
-            borderRadius: 999,
-            background: "#ef4444",
-            border: "2px solid #ffffff",
-            left: AVATAR_ANCHOR.x * scale - 5,
-            top: AVATAR_ANCHOR.y * scale - 5,
-            boxShadow: "0 0 0 1px rgba(239,68,68,0.3)"
-          }}
+    <div className={styles.container} style={{ width, height }}>
+      {sortedLayers.map((layer) => (
+        <img
+          key={layer.key}
+          src={layer.url}
+          alt={layer.key}
+          className={styles.layerImage}
+          style={{ zIndex: layer.key === "shadow" ? 0 : 10 }}
         />
-      ) : null}
+      ))}
     </div>
   );
 }
-

@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import { AvatarDashboard } from "../components/avatar-dashboard";
 
 export default function Home() {
-  return <AvatarDashboard initialScene="home" />;
+  return (
+    <Suspense>
+      <AvatarDashboard initialScene="home" />
+    </Suspense>
+  );
 }

@@ -1,17 +1,20 @@
 import type { ReactNode } from "react";
-import { Nunito, Quicksand } from "next/font/google";
+import { Noto_Sans_KR, Gowun_Batang } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
-const bodyFont = Nunito({
+const bodyFont = Noto_Sans_KR({
   subsets: ["latin"],
   variable: "--font-body",
-  weight: ["400", "600", "700", "800"]
+  weight: ["400", "500", "700"],
+  display: "swap"
 });
 
-const displayFont = Quicksand({
+const displayFont = Gowun_Batang({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["600", "700"]
+  weight: ["400", "700"],
+  display: "swap"
 });
 
 export const metadata = {
@@ -22,7 +25,21 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
-      <body className={`${bodyFont.variable} ${displayFont.variable}`}>{children}</body>
+      <body className={`${bodyFont.variable} ${displayFont.variable}`}>
+        {children}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: "var(--ghibli-cloud)",
+              border: "1.5px solid var(--ghibli-mist)",
+              color: "var(--ghibli-ink)",
+              fontFamily: "var(--font-body)",
+              boxShadow: "var(--shadow-md)",
+            },
+          }}
+        />
+      </body>
     </html>
   );
 }
