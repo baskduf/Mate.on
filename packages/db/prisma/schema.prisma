@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AvatarSlot {
+  hair
+  top
+  bottom
+  accessory
+  effect
+}
+
+enum ItemRarity {
+  common
+  rare
+  epic
+  legendary
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  clerkUserId String   @unique
+  displayName String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  inventoryItems InventoryItem[]
+  equips         AvatarEquip[]
+  hostedRoom     Room?
+  roomJoins      RoomParticipant[] @relation("RoomParticipantUser")
+  wallet         WalletBalance?
+  purchases      PurchaseLog[]
+}
+
+model AvatarItem {
+  id           String     @id @default(uuid()) @db.Uuid
+  slot         AvatarSlot
+  name         String
+  rarity       ItemRarity
+  price        Int
+  assetWebpUrl String
+  assetPngUrl  String?
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+
+  inventoryRows InventoryItem[]
+  equipRows     AvatarEquip[]
+  purchaseLogs  PurchaseLog[]
+}
+
+model InventoryItem {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  itemId     String   @db.Uuid
+  acquiredAt DateTime @default(now())
+
+  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item AvatarItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, itemId])
+  @@index([userId])
+}
+
+model AvatarEquip {
+  userId    String     @db.Uuid
+  slot      AvatarSlot
+  itemId    String     @db.Uuid
+  updatedAt DateTime   @updatedAt
+
+  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item AvatarItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@id([userId, slot])
+  @@index([userId])
+}
+
+model Room {
+  hostUserId String   @id @db.Uuid
+  isOnline   Boolean  @default(false)
+  title      String?
+  updatedAt  DateTime @updatedAt
+
+  hostUser     User              @relation(fields: [hostUserId], references: [id], onDelete: Cascade)
+  participants RoomParticipant[]
+}
+
+model RoomParticipant {
+  id                String    @id @default(uuid()) @db.Uuid
+  hostUserId        String    @db.Uuid
+  participantUserId String    @db.Uuid
+  joinedAt          DateTime  @default(now())
+  leftAt            DateTime?
+
+  room            Room @relation(fields: [hostUserId], references: [hostUserId], onDelete: Cascade)
+  participantUser User @relation("RoomParticipantUser", fields: [participantUserId], references: [id], onDelete: Cascade)
+
+  @@index([hostUserId, leftAt])
+}
+
+model WalletBalance {
+  userId    String   @id @db.Uuid
+  credits   Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PurchaseLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  itemId    String   @db.Uuid
+  amount    Int
+  createdAt DateTime @default(now())
+
+  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item AvatarItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
+}
