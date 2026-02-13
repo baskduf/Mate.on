@@ -26,6 +26,7 @@ Last updated: 2026-02-13
   - Host media capture start/stop and local preview
   - Viewer remote media rendering per peer stream
   - Host-side re-negotiate action for selected peer
+  - On unauthorized `connect_error`, client refreshes `/api/socket/token` and retries with updated socket auth token
 - Signal server routing safeguards are implemented:
   - Relay is dropped unless sender and target peers share the same signal room
   - Invalid or empty `hostUserId` join payload is ignored

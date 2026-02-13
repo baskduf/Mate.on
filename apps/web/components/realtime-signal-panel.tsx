@@ -432,6 +432,29 @@ export function RealtimeSignalPanel({ initialHostUserId }: RealtimeSignalPanelPr
     setActiveHostPeerId(null);
   }, [closeAllPeerConnections]);
 
+  const fetchSignalToken = useCallback(async (): Promise<TokenResponse> => {
+    const tokenResponse = await fetch("/api/socket/token", { cache: "no-store" });
+    let body: unknown = null;
+    if (tokenResponse.headers.get("content-type")?.includes("application/json")) {
+      body = await tokenResponse.json();
+    }
+
+    if (!tokenResponse.ok) {
+      const message =
+        body && typeof body === "object" && "error" in body ? String((body as { error?: unknown }).error ?? "") : "";
+      throw new Error(message || `Token request failed (${tokenResponse.status})`);
+    }
+
+    const payload = body as Partial<TokenResponse> | null;
+    const token = typeof payload?.token === "string" ? payload.token : "";
+    const userId = typeof payload?.userId === "string" ? payload.userId : "";
+    if (!token || !userId) {
+      throw new Error("Token response payload is invalid.");
+    }
+
+    return { token, userId };
+  }, []);
+
   const connect = useCallback(async () => {
     const trimmedHostUserId = roomHostUserId.trim();
     if (!trimmedHostUserId) {
@@ -454,23 +477,12 @@ export function RealtimeSignalPanel({ initialHostUserId }: RealtimeSignalPanelPr
     }
 
     try {
-      const tokenResponse = await fetch("/api/socket/token", { cache: "no-store" });
-      let body: unknown = null;
-      if (tokenResponse.headers.get("content-type")?.includes("application/json")) {
-        body = await tokenResponse.json();
-      }
-
-      if (!tokenResponse.ok) {
-        const message =
-          body && typeof body === "object" && "error" in body ? String((body as { error?: unknown }).error ?? "") : "";
-        throw new Error(message || `Token request failed (${tokenResponse.status})`);
-      }
-
-      const { token, userId } = body as TokenResponse;
+      const { token, userId } = await fetchSignalToken();
       setSelfUserId(userId);
 
       const socket = createSignalSocket({ token });
       socketRef.current = socket;
+      let isRefreshingToken = false;
 
       socket.on("connect", () => {
         setConnectionStatus("connected");
@@ -481,8 +493,31 @@ export function RealtimeSignalPanel({ initialHostUserId }: RealtimeSignalPanelPr
       });
 
       socket.on("connect_error", (error) => {
+        const message = error.message || "Failed to connect signal socket.";
+        const isUnauthorized = message.toLowerCase().includes("unauthorized");
+        if (isUnauthorized && !isRefreshingToken) {
+          isRefreshingToken = true;
+          void (async () => {
+            try {
+              const refreshedToken = await fetchSignalToken();
+              setSelfUserId((prev) => (prev === refreshedToken.userId ? prev : refreshedToken.userId));
+              socket.auth = { token: refreshedToken.token };
+              if (!socket.connected) {
+                socket.connect();
+              }
+              pushSignalLog("signal token refreshed");
+            } catch (refreshError) {
+              setConnectionStatus("error");
+              setConnectionError(refreshError instanceof Error ? refreshError.message : "Failed to refresh signal token.");
+            } finally {
+              isRefreshingToken = false;
+            }
+          })();
+          return;
+        }
+
         setConnectionStatus("error");
-        setConnectionError(error.message || "Failed to connect signal socket.");
+        setConnectionError(message);
       });
 
       socket.on("disconnect", (reason) => {
@@ -539,6 +574,7 @@ export function RealtimeSignalPanel({ initialHostUserId }: RealtimeSignalPanelPr
   }, [
     closeAllPeerConnections,
     closePeerConnection,
+    fetchSignalToken,
     handleIncomingAnswer,
     handleIncomingIce,
     handleIncomingOffer,
