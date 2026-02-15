@@ -7,7 +7,9 @@ import type {
   ChatBubblePayload,
   IceCandidatePayload,
   SessionDescriptionPayload,
-  SocketData
+  SocketData,
+  SquareRoomJoinPayload,
+  SquareRoomLeavePayload
 } from "@mateon/shared";
 import { verifyClerkToken } from "./auth";
 import { resolveSharedSignalRoomId, sanitizeRoomId } from "./signal-routing";
@@ -75,6 +77,15 @@ function resolveRelayTarget(fromSocketId: string, toPeerId: string) {
   return { targetSocket, senderRoomId };
 }
 
+async function broadcastSquarePlayerCount(sqRoom: string) {
+  const sockets = await presence.in(sqRoom).fetchSockets();
+  const roomId = sqRoom.replace("square:", "");
+  presence.to(sqRoom).emit("square:room:player_count", {
+    roomId,
+    count: sockets.length,
+  });
+}
+
 presence.use(applyAuth);
 signal.use(applyAuth);
 
@@ -134,7 +145,49 @@ presence.on("connection", (socket) => {
     });
   });
 
-  socket.on("disconnect", () => app.log.info({ id: socket.id }, "presence disconnected"));
+  /* ── Square room handlers ── */
+
+  socket.on("square:room:join", async ({ roomId }: SquareRoomJoinPayload) => {
+    if (!roomId) return;
+
+    // Leave any previous square rooms
+    for (const room of socket.rooms) {
+      if (room !== socket.id && room.startsWith("square:")) {
+        socket.leave(room);
+        socket.to(room).emit("square:room:user_left", { userId: socket.data.userId ?? "unknown" });
+        void broadcastSquarePlayerCount(room);
+      }
+    }
+
+    const sqRoom = `square:${roomId}`;
+    socket.join(sqRoom);
+    socket.to(sqRoom).emit("square:room:user_joined", {
+      userId: socket.data.userId ?? "unknown",
+      displayName: "",
+    });
+    void broadcastSquarePlayerCount(sqRoom);
+    app.log.info({ id: socket.id, userId: socket.data.userId, roomId }, "square room joined");
+  });
+
+  socket.on("square:room:leave", ({ roomId }: SquareRoomLeavePayload) => {
+    if (!roomId) return;
+    const sqRoom = `square:${roomId}`;
+    socket.leave(sqRoom);
+    socket.to(sqRoom).emit("square:room:user_left", { userId: socket.data.userId ?? "unknown" });
+    void broadcastSquarePlayerCount(sqRoom);
+    app.log.info({ id: socket.id, userId: socket.data.userId, roomId }, "square room left");
+  });
+
+  socket.on("disconnect", () => {
+    // Cleanup square rooms on disconnect
+    for (const room of socket.rooms) {
+      if (room.startsWith("square:")) {
+        socket.to(room).emit("square:room:user_left", { userId: socket.data.userId ?? "unknown" });
+        void broadcastSquarePlayerCount(room);
+      }
+    }
+    app.log.info({ id: socket.id }, "presence disconnected");
+  });
 });
 
 signal.on("connection", (socket) => {

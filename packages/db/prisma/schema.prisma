@@ -35,7 +35,7 @@ model User {
 
   inventoryItems InventoryItem[]
   equips         AvatarEquip[]
-  hostedRoom     Room?
+  hostedRooms    Room[]
   roomJoins      RoomParticipant[] @relation("RoomParticipantUser")
   wallet         WalletBalance?
   purchases      PurchaseLog[]
@@ -84,26 +84,35 @@ model AvatarEquip {
 }
 
 model Room {
-  hostUserId String   @id @db.Uuid
-  isOnline   Boolean  @default(false)
-  title      String?
-  updatedAt  DateTime @updatedAt
+  id           String    @id @default(uuid()) @db.Uuid
+  hostUserId   String    @db.Uuid
+  title        String    @default("My Room")
+  description  String?
+  isPublic     Boolean   @default(true)
+  passwordHash String?
+  maxPlayers   Int       @default(20)
+  isOnline     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   hostUser     User              @relation(fields: [hostUserId], references: [id], onDelete: Cascade)
   participants RoomParticipant[]
+
+  @@index([hostUserId])
+  @@index([isPublic, isOnline])
 }
 
 model RoomParticipant {
   id                String    @id @default(uuid()) @db.Uuid
-  hostUserId        String    @db.Uuid
+  roomId            String    @db.Uuid
   participantUserId String    @db.Uuid
   joinedAt          DateTime  @default(now())
   leftAt            DateTime?
 
-  room            Room @relation(fields: [hostUserId], references: [hostUserId], onDelete: Cascade)
+  room            Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
   participantUser User @relation("RoomParticipantUser", fields: [participantUserId], references: [id], onDelete: Cascade)
 
-  @@index([hostUserId, leftAt])
+  @@index([roomId, leftAt])
 }
 
 model WalletBalance {

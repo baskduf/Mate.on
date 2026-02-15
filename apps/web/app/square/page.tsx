@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { AvatarDashboard } from "../../components/avatar-dashboard";
+import { SquareContainer } from "../../components/square/square-container";
 
 export default function SquarePage() {
   return (
     <Suspense>
-      <AvatarDashboard initialScene="square" />
+      <SquareContainer />
     </Suspense>
   );
 }

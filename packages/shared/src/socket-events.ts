@@ -46,12 +46,35 @@ export interface AvatarStatePayload {
   ts: number;
 }
 
+/* ── Square-specific payloads ── */
+
+export interface SquareRoomJoinPayload {
+  roomId: string;
+}
+
+export interface SquareRoomLeavePayload {
+  roomId: string;
+}
+
+export interface RoomPlayerCountPayload {
+  roomId: string;
+  count: number;
+}
+
+export interface SquareUserJoinedPayload {
+  userId: string;
+  displayName: string;
+  layers?: Partial<Record<Slot, string>>;
+}
+
 export interface PresenceClientToServerEvents {
   "room:join": (payload: { hostUserId: string }) => void;
   "room:leave": (payload: { hostUserId: string }) => void;
   "avatar:move": (payload: AvatarMovePayload) => void;
   "avatar:equip": (payload: AvatarEquipPayload) => void;
   "chat:bubble": (payload: ChatBubblePayload) => void;
+  "square:room:join": (payload: SquareRoomJoinPayload) => void;
+  "square:room:leave": (payload: SquareRoomLeavePayload) => void;
 }
 
 export interface PresenceServerToClientEvents {
@@ -60,6 +83,9 @@ export interface PresenceServerToClientEvents {
   "avatar:state": (payload: AvatarStatePayload) => void;
   "avatar:equip": (payload: AvatarEquipBroadcastPayload) => void;
   "chat:bubble": (payload: { userId: string; text: string; ts: number }) => void;
+  "square:room:user_joined": (payload: SquareUserJoinedPayload) => void;
+  "square:room:user_left": (payload: { userId: string }) => void;
+  "square:room:player_count": (payload: RoomPlayerCountPayload) => void;
 }
 
 export interface SignalClientToServerEvents {
